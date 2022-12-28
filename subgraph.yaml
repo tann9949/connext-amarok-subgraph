@@ -3,20 +3,75 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: ConnextDiamond
+    name: Bridges
     network: mainnet
     source:
-      address: "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
-      abi: ConnextDiamond
+      address: &ConnextDiamond "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
+      abi: BridgeFacet
+      startBlock: &startBlock 16233067
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
+      apiVersion: &apiVersion 0.0.7
+      language: &language wasm/assemblyscript
       entities:
-
+        - BridgeTransaction
+        - ArbitaryMessageTransaction
+        - Token
       abis:
-        - name: ConnextDiamond
-          file: ./abis/ConnextDiamond.json
-      eventHandlers:
-
-      file: ./src/connext-diamond.ts
+        - name: BridgeFacet
+          file: ./abis/BridgeFacet.json
+        - name: ERC20Contract
+          file: ./abis/ERC20Contract.json
+      callHandlers:
+        - function: xcall(uint32,address,address,address,uint256,uint256,bytes)
+          handler: handleXCallTransaction
+        - function: addSequencer(address)
+          handler: handleAddSequencer
+        - function: removeSequencer(address)
+          handler: handleRemoveSequencer
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: Relayers
+    network: mainnet
+    source:
+      address: *ConnextDiamond
+      abi: RelayerFacet
+      startBlock: *startBlock
+    mapping:
+      kind: ethereum/events
+      apiVersion: *apiVersion
+      language: *language
+      entities:
+        - Relayer
+      abis:
+        - name: RelayerFacet
+          file: ./abis/RelayerFacet.json
+      callHandlers:
+        - function: addRelayer(address)
+          handler: handleAddRelayer
+        - function: removeRelayer(address)
+          handler: handleRemoveRelayer
+      file: ./src/mapping.ts
+    - kind: ethereum
+      name: Routers
+      network: mainnet
+      source:
+        address: *ConnextDiamond
+        abi: RouterFacet
+        startBlock: *startBlock
+      mapping:
+        kind: ethereum/events
+        apiVersion: *apiVersion
+        language: *language
+        entities:
+          - Router
+        abis:
+          - name: RouterFacet
+            file: ./abis/RelayerFacet.json
+        callHandlers:
+          - function: 
+            handler:
+          - function: 
+            handler: 
+        file: ./src/mapping.ts
+    

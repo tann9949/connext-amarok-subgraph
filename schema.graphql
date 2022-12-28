@@ -1,0 +1,32 @@
+type BridgeTransaction @entity(immutable: true) {
+    id: ID!
+    destinationChain: String
+    to: Bytes,
+    asset: Token
+    delegate: Bytes
+    amount: BigInt
+    slippage: BigInt
+    callData: Bytes
+}
+
+type ArbitraryMessageTransaction @entity(immutable: true) {
+    id: ID!
+    destinationChain: String
+    to: Bytes
+    callData: Bytes
+}
+
+type Token @entity(immutable: true) {
+    id: ID!
+    name: String
+    symbol: String
+    decimals: BigInt
+}
+
+type Relayer @entity {
+    id: ID!
+}
+
+type Sequencer @entity {
+    id: ID!
+}
