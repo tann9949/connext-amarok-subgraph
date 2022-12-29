@@ -17,6 +17,7 @@ dataSources:
         - BridgeTransaction
         - ArbitaryMessageTransaction
         - Token
+        - Remote
       abis:
         - name: BridgeFacet
           file: ./abis/BridgeFacet.json
@@ -29,6 +30,10 @@ dataSources:
           handler: handleAddSequencer
         - function: removeSequencer(address)
           handler: handleRemoveSequencer
+      eventHandlers:
+        # register router to the domain
+        - event: RemoteAdded(uint32,address,address)
+          handler: handleRemoteAdded
       file: ./src/mapping.ts
   - kind: ethereum
     name: Relayers
@@ -52,26 +57,35 @@ dataSources:
         - function: removeRelayer(address)
           handler: handleRemoveRelayer
       file: ./src/mapping.ts
-    - kind: ethereum
-      name: Routers
-      network: mainnet
-      source:
-        address: *ConnextDiamond
-        abi: RouterFacet
-        startBlock: *startBlock
-      mapping:
-        kind: ethereum/events
-        apiVersion: *apiVersion
-        language: *language
-        entities:
-          - Router
-        abis:
-          - name: RouterFacet
-            file: ./abis/RelayerFacet.json
-        callHandlers:
-          - function: 
-            handler:
-          - function: 
-            handler: 
-        file: ./src/mapping.ts
+  - kind: ethereum
+    name: Routers
+    network: mainnet
+    source:
+      address: *ConnextDiamond
+      abi: RouterFacet
+      startBlock: *startBlock
+    mapping:
+      kind: ethereum/events
+      apiVersion: *apiVersion
+      language: *language
+      entities:
+        - Router
+        - Token
+        - AddLiquidityTransaction
+        - RemoveLiquidityTransaction
+      abis:
+        - name: RouterFacet
+          file: ./abis/RouterFacet.json
+      eventHandlers:
+        - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
+          handler: handleRouterLiquidityAdded
+        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
+          handler: handleRouterLiquidityRemoved
+        - event: RouterAdded(indexed address,address)
+          handler: handleRouterAdded
+        - event: RouterRemoved(indexed address,address)
+          handler: handleRouterRemoved
+        - event: RouterInitialized(indexed address)
+          handler: handleRouterInitialized
+      file: ./src/mapping.ts
     

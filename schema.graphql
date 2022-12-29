@@ -1,6 +1,8 @@
 type BridgeTransaction @entity(immutable: true) {
     id: ID!
+    sourceChain: String
     destinationChain: String
+    destinationDomain: BigInt
     to: Bytes,
     asset: Token
     delegate: Bytes
@@ -11,9 +13,19 @@ type BridgeTransaction @entity(immutable: true) {
 
 type ArbitraryMessageTransaction @entity(immutable: true) {
     id: ID!
+    sourceChain: String
     destinationChain: String
+    destinationDomain: BigInt
     to: Bytes
     callData: Bytes
+}
+
+"""Maps remote contract on a specific domain"""
+type Remote @entity(immutable: true) {
+    id: ID!
+    originChain: String
+    remoteChain: String
+    caller: String
 }
 
 type Token @entity(immutable: true) {
@@ -29,4 +41,29 @@ type Relayer @entity {
 
 type Sequencer @entity {
     id: ID!
+}
+
+type Router @entity {
+    "Routers owner"
+    id: ID!
+    approver: String
+    approved: Boolean
+    tokens: [Token!]
+    balances: [BigInt!]
+}
+
+type AddLiquidityTransaction @entity(immutable: true) {
+    id: ID!
+    liquidityProvider: String
+    amount: BigInt
+    token: Token
+    router: String
+}
+
+type RemoveLiquidityTransaction @entity(immutable: true) {
+    id: ID!
+    liquidityProvider: String
+    amount: BigInt
+    token: Token
+    router: Router
 }
