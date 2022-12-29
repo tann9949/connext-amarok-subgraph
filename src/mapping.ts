@@ -8,7 +8,7 @@ import { lookupDomainID } from "./domainID";
 
 
 function loadToken(tokenAddress: Address): Token {
-    const token = new Token(tokenAddress.toString())
+    const token = new Token(tokenAddress.toHex())
 
     const contract = ERC20Contract.bind(tokenAddress)
     const symbol = contract.symbol()
@@ -22,11 +22,12 @@ function loadToken(tokenAddress: Address): Token {
 }
 
 
-export function handleXCallTransaction(event: XcallCall, sourceChain: string = "Ethereum Mainnet"): void {
+export function handleXCallTransaction(event: XcallCall): void {
     const id = event.transaction.hash.toHex();
 
     const domainID: string = event.inputs._destination.toString()
     const destChain = lookupDomainID(domainID)
+    const sourceChain: string = "Ethereum Mainnet"
 
     if (event.inputs._amount == new BigInt(0)) {
         // arbitrary message passing
@@ -81,29 +82,22 @@ export function handleRemoveRelayer(event: RemoveRelayerCall): void {
     }
 }
 
-export function handleRemoteAdded(event: RemoteAdded, sourceChain: string = "Ethereum Mainnet"): void {
-    log.debug("handleRemoteAdded called", [])
+export function handleRemoteAdded(event: RemoteAdded): void {
     const id = event.params.remote.toHex()  // remote addres
     const domainID = event.params.domain
     const caller = event.params.caller
-    log.debug("params obtained", [])
+    const sourceChain: string = "Ethereum Mainnet"
 
     let remote = Remote.load(id)
-    log.debug("Remote declared", [])
     if (remote == null || remote.id != id) {
-        log.debug("Remote is null or id is not the same", [])
         // update only if null
         remote = new Remote(id)
-        log.debug("new Remote declared", [])
         remote.originChain = sourceChain
         remote.remoteChain = lookupDomainID(domainID.toString())
-        log.debug("assign remoteChain from lookup domainID declared", [])
         remote.caller = caller.toHex()
 
         remote.save()
-        log.debug("Remote saved", [])
     }
-    
 }
 
 export function handleAddSequencer(event: AddSequencerCall): void {
@@ -125,12 +119,20 @@ export function handleRouterAdded(event: RouterAdded): void {
     const id = event.params.router.toHex()
 
     let router = Router.load(id)
-    if (router) {
-        // router is not null
+    if (router == null) {
+        // if router doesn't exists
+        // add one
+        const router = new Router(id)
+        router.approved = true
+        router.tokens = []
+        router.balances = []
+
+        router.save()
+    } else if (router.id != id) {
+        // router id doesn't match specified id
         router.approver = event.params.caller.toHex()
         router.save()
     }
-    // ignores if router is null
 }
 
 export function handleRouterRemoved(event: RouterRemoved): void {
@@ -212,10 +214,19 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
         const newBalance: BigInt = currTokenBalance.plus(amount)
 
         router.balances![tokenIdx] = newBalance
+        router.save()
     } else {
         // router hasn't add this token before
-        router.tokens!.push(token.id)
-        router.balances!.push(amount)
+        const currTokens = router.tokens
+        const currBalances = router.balances
+        // push to new index
+        currTokens!.push(token.id)
+        currBalances!.push(amount)
+
+        router.tokens = currTokens
+        router.balances =  currBalances
+
+        router.save()
     }
 }
 
@@ -269,5 +280,7 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
         const newBalance: BigInt = currTokenBalance.minus(amount)
 
         router.balances![tokenIdx] = newBalance
+
+        router.save()
     } 
 }

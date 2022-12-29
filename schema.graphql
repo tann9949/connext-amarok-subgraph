@@ -21,7 +21,7 @@ type ArbitraryMessageTransaction @entity(immutable: true) {
 }
 
 """Maps remote contract on a specific domain"""
-type Remote @entity(immutable: true) {
+type Remote @entity {
     id: ID!
     originChain: String
     remoteChain: String
@@ -57,7 +57,7 @@ type AddLiquidityTransaction @entity(immutable: true) {
     liquidityProvider: String
     amount: BigInt
     token: Token
-    router: String
+    router: Router
 }
 
 type RemoveLiquidityTransaction @entity(immutable: true) {
