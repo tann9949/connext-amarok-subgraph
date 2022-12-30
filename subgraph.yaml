@@ -6,13 +6,13 @@ dataSources:
     name: Bridges
     network: mainnet
     source:
-      address: &ConnextDiamond "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
       abi: BridgeFacet
-      startBlock: &startBlock 16233067
+      address: "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
+      startBlock: 16233067
     mapping:
       kind: ethereum/events
-      apiVersion: &apiVersion 0.0.7
-      language: &language wasm/assemblyscript
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
       entities:
         - BridgeTransaction
         - ArbitaryMessageTransaction
@@ -34,21 +34,20 @@ dataSources:
         - function: removeSequencer(address)
           handler: handleRemoveSequencer
       eventHandlers:
-        # register router to the domain
         - event: RemoteAdded(uint32,address,address)
           handler: handleRemoteAdded
-      file: ./src/mapping.ts
+      file: ./src/bridge.ts
   - kind: ethereum
     name: Relayers
     network: mainnet
     source:
-      address: *ConnextDiamond
       abi: RelayerFacet
-      startBlock: *startBlock
+      address: "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
+      startBlock: 16233067
     mapping:
       kind: ethereum/events
-      apiVersion: *apiVersion
-      language: *language
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
       entities:
         - Relayer
       abis:
@@ -59,18 +58,18 @@ dataSources:
           handler: handleAddRelayer
         - function: removeRelayer(address)
           handler: handleRemoveRelayer
-      file: ./src/mapping.ts
+      file: ./src/relayer.ts
   - kind: ethereum
     name: Routers
     network: mainnet
     source:
-      address: *ConnextDiamond
       abi: RouterFacet
-      startBlock: *startBlock
+      address: "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6"
+      startBlock: 16233067
     mapping:
       kind: ethereum/events
-      apiVersion: *apiVersion
-      language: *language
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
       entities:
         - Router
         - Token
@@ -84,7 +83,8 @@ dataSources:
       eventHandlers:
         - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityAdded
-        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
+        - event: RouterLiquidityRemoved(indexed
+            address,address,address,bytes32,uint256,address)
           handler: handleRouterLiquidityRemoved
         - event: RouterAdded(indexed address,address)
           handler: handleRouterAdded
@@ -92,5 +92,4 @@ dataSources:
           handler: handleRouterRemoved
         - event: RouterInitialized(indexed address)
           handler: handleRouterInitialized
-      file: ./src/mapping.ts
-    
+      file: ./src/routers.ts
