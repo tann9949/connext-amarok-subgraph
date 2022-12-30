@@ -8,6 +8,7 @@ import { BridgeFacet } from "../generated/Bridges/BridgeFacet"
 
 export function handleXCallTransaction(event: XcallCall): void {
     const id = event.transaction.hash.toHex();
+    const sender = event.from.toHex()
 
     const currDomain = BridgeFacet.bind(event.to).domain().toString()
     let sourceChain = domainLookupTable.get(currDomain)
@@ -30,6 +31,7 @@ export function handleXCallTransaction(event: XcallCall): void {
         ampTx.to = event.inputs._to
         ampTx.callData = event.inputs._callData
         ampTx.destinationDomain = event.inputs._destination
+        ampTx.from = sender
 
         ampTx.save()
     } else {
@@ -53,6 +55,7 @@ export function handleXCallTransaction(event: XcallCall): void {
         bridgeTx.callData = event.inputs._callData
         bridgeTx.asset = token.id
         bridgeTx.destinationDomain = event.inputs._destination
+        bridgeTx.from = sender
 
         bridgeTx.save()
     }

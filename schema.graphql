@@ -3,6 +3,7 @@ type BridgeTransaction @entity(immutable: true) {
     sourceChain: String
     destinationChain: String
     destinationDomain: BigInt
+    from: String
     to: Bytes,
     asset: Token
     delegate: Bytes
@@ -16,6 +17,7 @@ type ArbitraryMessageTransaction @entity(immutable: true) {
     sourceChain: String
     destinationChain: String
     destinationDomain: BigInt
+    from: String
     to: Bytes
     callData: Bytes
 }
